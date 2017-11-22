@@ -5,7 +5,7 @@ class Wrapper extends React.Component{
         this.postRegister = this.postRegister.bind(this);
         this.updateEmployeeID = this.updateEmployeeID.bind(this);
         this.pinChange = this.pinChange.bind(this);
-        this.register = this.register.bind(this);
+        this.findUser = this.findUser.bind(this);
 
         this.state = {
             register:false,
@@ -14,28 +14,6 @@ class Wrapper extends React.Component{
             pin: "",
             token:{}
         };
-    }
-
-    handleCreateEmployee(){
-        console.log("Logon State:  "+JSON.stringify(this.state));
-
-        let db = new PouchDB(DB);
-
-        db.query(FIND_EMPLOYEE,{key: this.state.employeeID, key2:this.state.pin}, function(err,res){
-            if(err){
-                console.log(err);
-            }
-            else{
-                if(res.rows.length==0){
-                    console.log("No User Found. Going to Registration");
-                    this.props.register();
-                }
-                else{
-                    console.log("User Found. Requesting Challenge");
-                    this.props.challenge();
-                }
-            }
-        }.bind(this));
     }
 
     updateEmployeeID(event){
@@ -50,6 +28,7 @@ class Wrapper extends React.Component{
         });
     }
 
+    //@ToDo, needs to create user
     postRegister(token){
         this.setState({
             register:false,
@@ -59,10 +38,31 @@ class Wrapper extends React.Component{
         console.log(JSON.stringify(this.state));
     }
 
-    register(){
-        this.setState({
-            register:true
-        });
+    findUser(){
+        let db = new PouchDB(DB);
+
+        db.query(FIND_EMPLOYEE,{key: this.state.employeeID, key2:this.state.pin}, function(err,res){
+            if(err){
+                console.log(err);
+            }
+            else{
+                if(res.rows.length==0){
+                    console.log("No User Found. Going to Registration");
+
+                    this.setState({
+                        register:true
+                    });
+                }
+                else{
+                    console.log("User Found. Requesting Challenge");
+
+                    this.setState({
+                        challenge:true
+                    });
+                }
+            }
+        }.bind(this));
+
     }
 
     render(){
@@ -73,7 +73,7 @@ class Wrapper extends React.Component{
             return <Register next={this.postRegister}/>;
         }
         else{
-            return <Employee onEmployeeIDChange={this.updateEmployeeID} onPINChange={this.pinChange} pin={this.state.pin} employeeID={this.state.employeeID} next={this.register}/>;
+            return <Employee onEmployeeIDChange={this.updateEmployeeID} onPINChange={this.pinChange} pin={this.state.pin} employeeID={this.state.employeeID} next={this.findUser}/>;
         }
     }
 }

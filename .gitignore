@@ -3,6 +3,7 @@
 
 #Ignore my secrets!
 dist/*.js
+dist/**
 
 ### Bower ###
 bower_components

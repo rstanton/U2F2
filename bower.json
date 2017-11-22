@@ -16,6 +16,10 @@
     "tests"
   ],
   "dependencies": {
-    "pouchdb": "^6.3.4"
+    "pouchdb": "^6.3.4",
+    "react": "^16.1.0",
+    "jquery": "^3.2.1",
+    "bootstrap": "^3.3.7",
+    "jquery-ui": "jqueryui#^1.12.1"
   }
 }

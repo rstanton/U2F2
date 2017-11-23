@@ -30,11 +30,6 @@ class Register extends React.Component{
                     document.getElementById("status").innerHTML = JSON.stringify(data);
                     return;
                 }
-                //document.getElementById("status").innerHTML = JSON.stringify(data);
-                this.setState({
-                    done:true,
-                    token: data
-                });
 
                 $("#registerDialog").dialog("close");
                 $("#registerDialog").dialog("destroy");
@@ -46,6 +41,6 @@ class Register extends React.Component{
     }
 
     render(){
-        return <div id={"registerDialog"}>Insert Your Key</div>;
+        return <div id={"registerDialog"}>Insert Your Key<div id={"status"}></div></div>;
     }
 }

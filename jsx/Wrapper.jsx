@@ -3,9 +3,12 @@ class Wrapper extends React.Component{
         super(props);
 
         this.postRegister = this.postRegister.bind(this);
+        this.postChallenge = this.postChallenge.bind(this);
+
         this.updateEmployeeID = this.updateEmployeeID.bind(this);
         this.pinChange = this.pinChange.bind(this);
         this.findUser = this.findUser.bind(this);
+        this.addUser = this.addUser.bind(this);
 
         this.state = {
             register:false,
@@ -31,17 +34,41 @@ class Wrapper extends React.Component{
     //@ToDo, needs to create user
     postRegister(token){
         this.setState({
-            register:false,
             token: token
         });
+
+        this.addUser();
 
         console.log(JSON.stringify(this.state));
     }
 
-    findUser(){
+    postChallenge(data){
+        console.log("Got "+JSON.stringify(data));
+    }
+
+    addUser(){
         let db = new PouchDB(DB);
 
-        db.query(FIND_EMPLOYEE,{key: this.state.employeeID, key2:this.state.pin}, function(err,res){
+        db.post(this.state, function(err, doc){
+            if(err){
+                console.log(err);
+            }
+            else{
+                console.log("User Created "+JSON.stringify(doc));
+
+                this.setState({
+                    register:false,
+                    challenge: true
+                });
+            }
+        }.bind(this));
+    }
+
+    findUser(){
+        let db = new PouchDB(DB);
+        console.log("Finding if employee with id "+this.state.employeeID+" exists");
+
+        db.query(FIND_EMPLOYEE,{key: this.state.employeeID}, function(err,res){
             if(err){
                 console.log(err);
             }
@@ -56,9 +83,15 @@ class Wrapper extends React.Component{
                 else{
                     console.log("User Found. Requesting Challenge");
 
-                    this.setState({
-                        challenge:true
-                    });
+                    db.get(res.rows[0].id, function(err, doc){
+                        if(!err) {
+                            console.log("Got " + JSON.stringify(doc));
+                            this.setState({
+                                challenge: true,
+                                token: doc.token,
+                            });
+                        }
+                    }.bind(this));
                 }
             }
         }.bind(this));
@@ -67,7 +100,7 @@ class Wrapper extends React.Component{
 
     render(){
         if(this.state.challenge) {
-            return <Challenge/>;
+            return <Challenge token={this.state.token} next={this.postChallenge}/>;
         }
         else if(this.state.register){
             return <Register next={this.postRegister}/>;

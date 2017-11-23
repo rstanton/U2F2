@@ -1,4 +1,4 @@
-const FIND_EMPLOYEE = "users/by_id_and_pin";
+const FIND_EMPLOYEE = "users/by_id";
 const DB = "FIDO";
 
 class Employee extends React.Component{
@@ -19,13 +19,10 @@ class Employee extends React.Component{
         var designDoc = {
             _id:'_design/users',
             views:{
-                by_id_and_pin:{
+                by_id:{
                     map:function(doc){
                         if(doc.employeeID)
                             emit(doc.employeeID, doc);
-
-                        if(doc.pin)
-                            emit(doc.pin, doc);
                     }.toString()
                 },
                 all:{

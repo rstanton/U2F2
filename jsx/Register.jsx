@@ -4,7 +4,7 @@ class Register extends React.Component{
 
         this.init = this.init.bind(this);
         this.componentDidMount = this.componentDidMount.bind(this);
-
+        this.getChallenge = this.getChallenge.bind(this);
 
         this.state={
             done:false,
@@ -24,20 +24,37 @@ class Register extends React.Component{
     }
 
     init(){
-        u2f.register("https://127.0.0.1:8081", [{version:"U2F_V2", challenge: "dG7vN-E440ZnJaKQ7Ynq8AemLHziJfKrBpIBi5OET_0"}], [],
-            function(data){
-                if(data.errorCode) {
-                    document.getElementById("status").innerHTML = JSON.stringify(data);
-                    return;
-                }
+        $.get("http://127.0.0.1:9000/fido/challenge", function(data, status, x){
+            console.log("Got Challenge Data: "+data);
 
-                $("#registerDialog").dialog("close");
-                $("#registerDialog").dialog("destroy");
+            u2f.register("https://127.0.0.1:8081", [{version:"U2F_V2", challenge: data}], [],
+                function(data){
+                    if(data.errorCode) {
+                        document.getElementById("status").innerHTML = JSON.stringify(data);
+                        return;
+                    }
 
-                this.props.next(data);
+                    $("#registerDialog").dialog("close");
+                    $("#registerDialog").dialog("destroy");
 
-            }.bind(this)
-        );
+                    this.props.next(data);
+
+                }.bind(this)
+            );
+        }.bind(this));
+
+    }
+
+    getChallenge(next){
+        $.get("http://localhost:9000/fido/challenge", function(data){
+            console.log("Got "+data+" as challenge");
+            
+            this.setState({
+                challenge: data
+            });
+            
+            next();
+        }.bind(this))
     }
 
     render(){
